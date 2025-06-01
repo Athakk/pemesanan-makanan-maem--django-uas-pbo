@@ -1,0 +1,135 @@
+{% extends 'admin/base.html' %} 
+{% block title %} Pesanan {% endblock %} 
+{% block lable %} Pesanan {% endblock%}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg mb-4 order-0">
+    <div class="card">
+      <div class="d-flex align-items-end row">
+        <div class="col-sm">
+          <div class="card-body">
+            <div class="card-title d-flex align-items-center justify-content-between">
+              <h5 class="mb-0">Pesanan</h5>
+              <a href="{% url 'create_pesanan' %}" class="btn btn-primary d-flex align-items-center">
+                <i class="tf-icons bx bx-plus"></i>
+                <span class="text-truncate">Tambah</span>
+              </a>
+            </div>
+            <div class="table-responsive text-nowrap">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>No</th>
+                        <th>Nama</th>
+                        <th>Total Harga</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                      {% for pesanan in pesanans %}
+                      <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ pesanan.nama_pemesan }}</td>
+                        <td>Rp. {{ pesanan.total_harga }}</td>
+                        <td>{{ pesanan.tanggal_pesan }}</td>
+                        <td>
+                          {% if pesanan.status == 1 %}
+                            <span class="badge bg-label-warning">Menunggu Pembayaran</span>
+                          {% elif pesanan.status == 2 %}
+                            <span class="badge bg-label-warning">Diproses</span>
+                          {% elif pesanan.status == 3 %}
+                            <span class="badge bg-label-success">Selesai</span>
+                          {% else %}
+                            <span class="badge bg-label-secondary">Dibatalkan</span>
+                          {% endif %}
+                        </td>
+                        <td>
+                          <div class="demo-inline-spacing">
+                          {% if pesanan.status != 3 %}
+                          <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detailModal{{ pesanan.id }}"><i class="bx bx-show"></i></button>
+                            <a href="{% url 'update_pesanan' pesanan.id %}" class="btn btn-sm btn-warning">
+                              <i class="bx bx-edit"></i>
+                            </a>
+                              
+                            <button class="btn btn-danger btn-sm delete-btn" data-bs-toggle="modal" data-bs-target="#deleteModal{{ pesanan.id }}"><i class="bx bx-trash"></i></button>
+                            {% endif %}
+                          </div>
+
+                        </td>
+                      </tr>
+
+                      <!-- Modal -->
+                      <div class="modal fade" id="deleteModal{{ pesanan.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ pesanan.id }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h1 class="modal-title fs-5" id="deleteModalLabel{{ pesanan.id }}">Konfirmasi Hapus</h1>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                              Yakin ingin menghapus pesanan <strong>{{ pesanan.kd_pesanan }}</strong>?
+                            </div>
+                            <div class="modal-footer">
+                              <form method="POST" action="{% url 'delete_pesanan' pesanan.id %}">
+                                {% csrf_token %}
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                <button type="submit" class="btn btn-danger">Hapus</button>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Detail Modal -->
+                      <div class="modal fade" id="detailModal{{ pesanan.id }}" tabindex="-1" aria-labelledby="detailModalLabel{{ pesanan.id }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h1 class="modal-title fs-5" id="detailModalLabel{{ pesanan.id }}">Detail Pesanan</h1>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                              <div class="table-responsive text-nowrap">
+                                <ol class="list-group list-group-numbered">
+                                  {% for item in detail_pesanans %}
+                                    {% if item.pesanan.id == pesanan.id %}
+                                    <li class="list-group-item">
+                                      <strong>{{ item.menu.nama }}</strong>  || Jumlah: {{ item.jumlah }}  || Harga: Rp. {{ item.subtotal }}
+                                    </li>
+                                    {% endif %}
+                                  {% endfor %}
+                                </ol>
+                              </div>
+                            </div>
+                            <div class="modal-footer">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {% empty %}
+                      <tr>
+                        <td colspan="6" class="text-center">No data available</td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+    </div>
+  </div>
+</div>
+
+
+
+
+{% endblock %}
+

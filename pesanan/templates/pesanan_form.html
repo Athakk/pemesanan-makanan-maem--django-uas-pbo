@@ -1,0 +1,189 @@
+{% extends 'admin/base.html' %} {% block title %} Pesanan Forms {% endblock %} {% block lable %} Pesanan Forms {% endblock%} {% block content %}
+<div class="row">
+  <div class="col-lg mb-4 order-0">
+    <div class="card">
+      <div class="d-flex align-items-end row">
+        <div class="col-sm">
+          <div class="card-body">
+            <div class="card-title d-flex align-items-center justify-content-between">
+              <h5 class="mb-0">Pesanan</h5>
+              <a href="{% url 'pesanan' %}" class="btn btn-danger d-flex align-items-center">
+                <i class="bx bx-arrow-back me-2"></i>
+                <span class="text-truncate">Kembali</span>
+              </a>
+            </div>
+            <hr class="hr my-4" />
+            <form method="POST" class="jumbotron" enctype="multipart/form-data" id="pesanan-form">
+              <div class="row">
+                {% csrf_token %}
+                <div class="col-12 mb-3">
+                  {{pesanan_form.nama_pemesan.label_tag}} {{pesanan_form.nama_pemesan}} {% if pesanan_form.nama_pemesan.errors %}
+                  <div class="text-danger">{% for error in pesanan_form.nama_pemesan.errors %}{{ error }}{% endfor %}</div>
+                  {% endif %}
+                </div>
+                <div class="col-6 mb-3">
+                  {{pesanan_form.total_harga.label_tag}} {{pesanan_form.total_harga}} {% if pesanan_form.total_harga.errors %}
+                  <div class="text-danger">{% for error in pesanan_form.total_harga.errors %}{{ error }}{% endfor %}</div>
+                  {% endif %}
+                </div>
+                <div class="col-6 mb-3">
+                  {{pesanan_form.status.label_tag}} {{pesanan_form.status}} {% if pesanan_form.status.errors %}
+                  <div class="text-danger">{% for error in pesanan_form.status.errors %}{{ error }}{% endfor %}</div>
+                  {% endif %}
+                </div>
+                <hr class="hr mt-4" />
+                {{ formset.management_form }}
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                  <h5 class="mb-0">Item Pesanan</h5>
+                  <button class="btn btn-primary btn-sm d-flex align-items-center" type="button" id="add-item-button"><i class="bx bx-plus"></i> Tambah Item</button>
+                </div>
+                <div class="table-responsive text-nowrap">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>No</th>
+                        <th>Menu</th>
+                        <th>Jumlah</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="formset-container">
+                      {% for form in formset %}
+                      <tr class="detail-item-row" id="id_{{ formset.prefix }}-{{ forloop.counter0 }}-row">
+                        <td><span class="item-number">{{ forloop.counter }}</span></td>
+                        <td>
+                          {{ form.id }} {{ form.menu }} {% if form.menu.errors %}
+                          <div class="text-danger">{% for error in form.menu.errors %}{{ error }}{% endfor %}</div>
+                          {% endif %}
+                        </td>
+                        <td>
+                          {{ form.jumlah }} {% if form.jumlah.errors %}
+                          <div class="text-danger">{% for error in form.jumlah.errors %}{{ error }}{% endfor %}</div>
+                          {% endif %}
+                        </td>
+                        <td>
+                          {% if form.instance.pk %} {{ form.DELETE }} <label for="{{ form.DELETE.id_for_label }}">Hapus</label>
+                          {% endif %}
+                          <button class="btn btn-danger btn-sm remove-item-button" type="button"><i class="bx bx-trash"></i></button>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <button class="btn btn-primary btn-block my-4" type="submit">Save</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<template id="empty-form-template">
+  <tr class="detail-item-row" id="id_{{ formset.prefix }}-__prefix__-row" style="display: none">
+    <td><span class="item-number"></span></td>
+    <td>{% for field in formset.empty_form %} {% if field.name == 'menu' %} {{ field }} {% endif %} {% endfor %}</td>
+    <td>{% for field in formset.empty_form %} {% if field.name == 'jumlah' %} {{ field }} {% endif %} {% endfor %}</td>
+    <td>
+      <button class="btn btn-danger btn-sm remove-item-button" type="button"><i class="bx bx-trash"></i></button>
+    </td>
+  </tr>
+</template>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const addButton = document.getElementById("add-item-button");
+    const formsetContainer = document.getElementById("formset-container");
+    const emptyFormTemplate = document.getElementById("empty-form-template").content;
+    const totalFormsInput = document.querySelector('input[name="{{ formset.prefix }}-TOTAL_FORMS"]');
+
+    let formCount = parseInt(totalFormsInput.value);
+
+    function updateElementIndex(element, prefix, index) {
+      const idRegex = new RegExp(`(${prefix}-(__prefix__|\\d+)-)`);
+      const nameRegex = new RegExp(`(${prefix}-(__prefix__|\\d+)-)`);
+
+      if (element.id) {
+        element.id = element.id.replace(idRegex, `${prefix}-${index}-`);
+      }
+      if (element.name) {
+        element.name = element.name.replace(nameRegex, `${prefix}-${index}-`);
+      }
+      if (element.htmlFor) {
+        element.htmlFor = element.htmlFor.replace(idRegex, `${prefix}-${index}-`);
+      }
+    }
+
+    addButton.addEventListener("click", function () {
+      const newFormRow = document.importNode(emptyFormTemplate, true);
+      const newTr = newFormRow.querySelector("tr");
+
+      newTr.style.display = "";
+      newTr.removeAttribute("id");
+
+      Array.from(newTr.querySelectorAll("*")).forEach((element) => {
+        updateElementIndex(element, "{{ formset.prefix }}", formCount);
+      });
+
+      const itemNumberSpan = newTr.querySelector(".item-number");
+      if (itemNumberSpan) {
+        itemNumberSpan.textContent = formCount + 1;
+      }
+
+      const removeButton = newTr.querySelector(".remove-item-button");
+      if (removeButton) {
+        removeButton.addEventListener("click", function () {
+          deleteForm(newTr);
+        });
+      }
+
+      formsetContainer.appendChild(newTr);
+      totalFormsInput.value = formCount + 1;
+      formCount++;
+    });
+
+    function deleteForm(formToDeleteRow) {
+      const deleteCheckbox = formToDeleteRow.querySelector('input[type="checkbox"][id$="-DELETE"]');
+      if (deleteCheckbox) {
+        deleteCheckbox.checked = true;
+        formToDeleteRow.style.display = "none";
+      } else {
+        formToDeleteRow.remove();
+        totalFormsInput.value = parseInt(totalFormsInput.value) - 1;
+        formCount--;
+        reIndexForms();
+      }
+    }
+
+    formsetContainer.addEventListener("click", function (event) {
+      if (event.target.classList.contains("remove-item-button") || event.target.closest(".remove-item-button")) {
+        const button = event.target.closest(".remove-item-button");
+        const formRow = button.closest(".detail-item-row");
+        if (formRow) {
+          deleteForm(formRow);
+        }
+      }
+    });
+
+    function reIndexForms() {
+      const visibleForms = formsetContainer.querySelectorAll('.detail-item-row:not([style*="display: none"])');
+      let newIndex = 0;
+      visibleForms.forEach((row) => {
+        Array.from(row.querySelectorAll("*")).forEach((element) => {
+          updateElementIndex(element, "{{ formset.prefix }}", newIndex);
+        });
+        const itemNumberSpan = row.querySelector(".item-number");
+        if (itemNumberSpan) {
+          itemNumberSpan.textContent = newIndex + 1;
+        }
+        newIndex++;
+      });
+      totalFormsInput.value = newIndex;
+      formCount = newIndex;
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'admin/base.html' %} 
+{% block title %} Menu Forms {% endblock %} 
+{% block lable %} Menu Forms {% endblock%}
+{% block content %}
+<div class="row">
+  <div class="col-lg mb-4 order-0">
+    <div class="card">
+      <div class="d-flex align-items-end row">
+        <div class="col-sm">
+            <div class="card-body">
+            <div class="card-title d-flex align-items-center justify-content-between">
+                <h5 class="mb-0">Menu</h5>
+                <a href="{% url 'menu' %}" class="btn btn-danger d-flex align-items-center">
+                    <i class="bx bx-arrow-back me-2"></i>
+                    <span class="text-truncate">Kembali</span>              
+                </a>
+            </div>
+            <hr class="hr my-4">
+            <form method="POST" class="jumbotron" enctype="multipart/form-data">
+              <div class="row">
+
+                {% csrf_token %}
+                {{form}}
+                
+                {% if request.resolver_match.view_name == 'update_menu' and form.instance.image %}
+                  <img src="{{ form.instance.image.url }}" alt="Menu Image" class="img-fluid mb-3" style="max-width: 200px;">
+                {% endif %}
+              </div>
+              <button class="btn btn-primary btn-block my-4" type="submit">Save Product</button>
+            </form>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+    </div>
+  </div>
+</div>
+{% endblock %}  
