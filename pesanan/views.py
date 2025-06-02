@@ -90,7 +90,7 @@ def update_pesanan(request, pk):
                         if form.instance.pk:
                             form.instance.delete()
 
-                    pesanan.total_harga = total_harga_pesanan
+                    pesanan.total_harga = total_harga_pesanan + pesanan.total_harga
                     pesanan.save()
 
                     return redirect('pesanan')
