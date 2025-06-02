@@ -62,9 +62,9 @@
                           {% endif %}
                         </td>
                         <td>
-                          {% if form.instance.pk %} {{ form.DELETE }} <label for="{{ form.DELETE.id_for_label }}">Hapus</label>
+                          {% if form.instance.pk %} {{ form.DELETE }} <label for="{{ form.DELETE.id_for_label }}"></label>
                           {% endif %}
-                          <button class="btn btn-danger btn-sm remove-item-button" type="button"><i class="bx bx-trash"></i></button>
+                          <button class="btn btn-danger btn-sm remove-item-button ms-2" type="button"><i class="bx bx-trash"></i></button>
                         </td>
                       </tr>
                       {% endfor %}

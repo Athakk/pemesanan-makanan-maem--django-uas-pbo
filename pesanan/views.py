@@ -104,7 +104,7 @@ def update_pesanan(request, pk):
         'pesanan_form': pesanan_form,
         'formset': formset,
     }
-    return render(request, 'pesanan/edit_pesanan.html', context) # Ganti dengan path template Anda
+    return render(request, 'pesanan_form.html', context) # Ganti dengan path template Anda
 
 
 @user_passes_test(is_staff_required, login_url='/')
