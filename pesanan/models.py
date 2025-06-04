@@ -27,7 +27,6 @@ class DetailPesanan(models.Model):
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     def save(self, *args, **kwargs):
-        # Otomatis mengisi harga_per_item dari harga menu saat DetailPesanan disimpan
         if not self.harga_item:
             self.harga_item = self.menu.harga
         super().save(*args, **kwargs)

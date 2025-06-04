@@ -39,13 +39,12 @@ def create_pesanan(request):
 
                     total_harga_pesanan = 0
                     for detail_pesanan in detail_pesanan_instances:
-                        # Make sure the menu object is loaded to calculate subtotal correctly
                         detail_pesanan.menu = detail_pesanan.menu 
-                        detail_pesanan.pesanan = pesanan # Ensure FK is set
+                        detail_pesanan.pesanan = pesanan 
                         detail_pesanan.save()
-                        total_harga_pesanan += detail_pesanan.subtotal # Use the @property subtotal
+                        total_harga_pesanan += detail_pesanan.subtotal 
 
-                    # Handle deleted forms in the formset
+                    
                     for form in formset.deleted_forms:
                         if form.instance.id:
                             form.instance.delete()
@@ -75,14 +74,14 @@ def update_pesanan(request, pk):
         if pesanan_form.is_valid() and formset.is_valid():
             try:
                 with transaction.atomic():
-                    pesanan = pesanan_form.save() # Simpan perubahan pada Pesanan
+                    pesanan = pesanan_form.save() 
 
-                    formset.instance = pesanan # Pastikan formset terkait dengan instance Pesanan ini
+                    formset.instance = pesanan 
                     detail_pesanan_instances = formset.save(commit=False)
                     
                     total_harga_pesanan = 0
                     for detail_pesanan in detail_pesanan_instances:
-                        detail_pesanan.pesanan = pesanan # Pastikan FK tetap benar
+                        detail_pesanan.pesanan = pesanan 
                         detail_pesanan.save()
                         total_harga_pesanan += detail_pesanan.subtotal
                     
@@ -104,13 +103,18 @@ def update_pesanan(request, pk):
         'pesanan_form': pesanan_form,
         'formset': formset,
     }
-    return render(request, 'pesanan_form.html', context) # Ganti dengan path template Anda
+    return render(request, 'pesanan_form.html', context) 
 
 
 @user_passes_test(is_staff_required, login_url='/')
 def delete_pesanan(request, id):
     pesanan = Pesanan.objects.get(id=id)
+    detail_pesanan = DetailPesanan.objects.filter(pesanan=pesanan)
+
     if request.method == 'POST':
         pesanan.delete()
-        return redirect('pesanan_list')
-    return render(request, 'pesanan_confirm_delete.html', {'pesanan': pesanan})
+        if detail_pesanan.exists():
+            detail_pesanan.delete()
+            return redirect('pesanan_list')
+    return redirect('pesanan')
+

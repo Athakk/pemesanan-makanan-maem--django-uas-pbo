@@ -36,11 +36,9 @@ def update_menu(request, menu_id):
         form = MenuForm(request.POST, request.FILES, instance=menu)
         if form.is_valid():
             if 'image' in request.FILES:
-                # If a new image is uploaded, delete the old one
                 if menu.image and os.path.isfile(menu.image.path):
                     os.remove(menu.image.path)
             else:
-                # If no new image is uploaded, keep the old one
                 form.instance.image = menu.image
             form.save()
             return redirect('menu')

@@ -2,7 +2,7 @@ from importlib.metadata import requires
 from django import forms
 from .models import Pesanan
 from .models import DetailPesanan
-from menu.models import Menu # Assuming your Menu model is in an app called 'menu'
+from menu.models import Menu 
 from django.forms import inlineformset_factory
 
 from django.contrib.auth.models import User
@@ -19,7 +19,6 @@ class PesananForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Example of making 'nama_pemesan' required if it's not already by default
         self.fields['nama_pemesan'].required = True
 
 class DetailPesananForm(forms.ModelForm):
@@ -33,13 +32,13 @@ class DetailPesananForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['menu'].queryset = Menu.objects.filter(stok__gt=0)  # Only show menus with stock available
+        self.fields['menu'].queryset = Menu.objects.filter(stok__gt=0)  
 
 DetailPesananFormSet = inlineformset_factory(
-    Pesanan,            # Parent model
-    DetailPesanan,      # Child model
-    form=DetailPesananForm, # The form to use for each detail item
+    Pesanan,            
+    DetailPesanan,     
+    form=DetailPesananForm, 
     fields=['menu', 'jumlah'],
-    extra=1,            # Number of empty forms to display initially
-    can_delete=True     # Allow users to delete detail items
+    extra=1,            
+    can_delete=True     
 )
